@@ -47,6 +47,9 @@ libraryDependencies ++= {
   )
 }
 
+// 1.1.2 seems to no longer be available on ivy
+dependencyOverrides += "com.github.stephenc.high-scale-lib" % "high-scale-lib" % "1.1.4"
+
 
 pomExtra := {
   <url>https://github.com/acflorea/akka-persistence-titan</url>
