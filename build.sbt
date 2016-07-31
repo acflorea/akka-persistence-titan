@@ -1,6 +1,6 @@
 organization := "com.github.acflorea"
 name := "akka-persistence-titan"
-version := "1.0.0-SNAPSHOT"
+version := "1.0.1-SNAPSHOT"
 
 scalaVersion := "2.11.7"
 
