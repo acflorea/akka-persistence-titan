@@ -10,6 +10,8 @@ val scalatestVersion = "2.2.4"
 val titanVersion = "1.0.0"
 val tinkerpopVersion = "2.6.0"
 val configVersion = "1.3.0"
+val gsonVersion = "2.7"
+val liftVersion = "2.0"
 
 resolvers ++= Seq(
   "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/"
@@ -36,7 +38,10 @@ libraryDependencies ++= {
     "com.typesafe.akka" %% "akka-persistence" % akkaVersion,
     "org.scalatest" %% "scalatest" % scalatestVersion % "test",
 
-    // Titan
+    // GSON
+    "com.google.code.gson" % "gson" % gsonVersion,
+
+  // Titan
     "com.thinkaurelius.titan" % "titan-core" % titanVersion,
     "com.thinkaurelius.titan" % "titan-cassandra" % titanVersion % "test",
     "com.thinkaurelius.titan" % "titan-es" % titanVersion % "test",

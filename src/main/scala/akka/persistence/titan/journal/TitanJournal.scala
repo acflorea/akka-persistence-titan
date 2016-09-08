@@ -31,20 +31,6 @@ class TitanJournal(conf: Config) extends AsyncWriteJournal with ActorLogging {
                                    messages: Seq[AtomicWrite]
                                  ): Future[Seq[Try[Unit]]] = {
 
-    def getCCParams(cc: Any) =
-      cc match {
-        // A class
-        case cc: Product => (Map[String, Any]() /: cc.getClass.getDeclaredFields) { (a, f) =>
-          f.setAccessible(true)
-          a + (f.getName -> (f.get(cc) match {
-            case Some(value) => value
-            case anythingelse => anythingelse
-          }))
-        }
-        case _ => Map("_raw" -> cc)
-      }
-
-
     val verticesFuture = Future {
 
       messages map { message =>
@@ -124,11 +110,11 @@ class TitanJournal(conf: Config) extends AsyncWriteJournal with ActorLogging {
     Future {
       journalVertices map { vertex =>
 
-        (serialization.
+        serialization.
           deserialize[PersistentRepr](
           vertex.property[Array[Byte]](PAYLOAD_KEY).value(),
           classOf[PersistentRepr]
-        )).get
+        ).get
 
       } foreach recoveryCallback
     }
