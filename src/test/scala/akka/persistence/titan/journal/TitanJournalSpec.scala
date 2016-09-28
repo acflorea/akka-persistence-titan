@@ -64,7 +64,7 @@ class TitanJournalSpec extends JournalSpec(
           p.label().startsWith(s"$PAYLOAD_KEY.")
         }
         vertex.property[String](SEQUENCE_NR_KEY).value() ->
-          payloadProps.map(p => vertex.property[String](p.label()).value()).toSeq
+          payloadProps.map(p => vertex.property[String](p.label()).value()).toList
       }
 
       logger.info(payloadInfo.toString())

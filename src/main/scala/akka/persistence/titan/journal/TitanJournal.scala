@@ -1,6 +1,6 @@
 package akka.persistence.titan.journal
 
-import akka.actor.ActorLogging
+import akka.actor.{ActorLogging, Props}
 import akka.persistence.journal.AsyncWriteJournal
 import akka.persistence.titan.TitanCommons._
 import akka.persistence.{AtomicWrite, PersistentRepr}
@@ -17,15 +17,18 @@ import scala.util.Try
 
 
 /**
- * Created by aflorea on 18.07.2016.
- */
+  * Created by aflorea on 18.07.2016.
+  */
 class TitanJournal(conf: Config) extends AsyncWriteJournal with ActorLogging {
+
 
   private lazy val serialization: Serialization = SerializationExtension(context.system)
 
   val config = new TitanJournalConfig(conf)
 
   import config._
+
+  lazy val detailsActor = context.actorOf(Props(classOf[DetailedJournal], config), "journal-details-writer")
 
   override def asyncWriteMessages(
                                    messages: Seq[AtomicWrite]
@@ -45,20 +48,27 @@ class TitanJournal(conf: Config) extends AsyncWriteJournal with ActorLogging {
             vertex.property(SEQUENCE_NR_KEY, payload.sequenceNr)
             // Deleted ?
             vertex.property(DELETED_KEY, payload.deleted)
-            // Properties
-            getCCParams(payload.payload) map { entry =>
-              vertex.property(s"$PAYLOAD_KEY.${entry._1}", entry._2)
-            }
             serialization.serialize(payload) map {
               vertex.property(PAYLOAD_KEY, _)
             }
             log.debug(s"$payload persisted OK!")
-            vertex
+
+            (vertex, payload)
           }
         }
 
         graph.tx.commit()
-        tryBlock
+
+        tryBlock.map {
+          _ map {
+            vp =>
+              val vertex = vp._1
+              val payload = vp._2
+              // Persist details - do it in a fire & forget manner
+              detailsActor ! Details(payload, vertex.id())
+              vertex
+          }
+        }
 
       }
 

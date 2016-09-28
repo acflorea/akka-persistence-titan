@@ -10,7 +10,7 @@ A replicated [Akka Persistence](http://doc.akka.io/docs/akka/current/scala/persi
 | :--------: | -------------------------------- |
 | Plugin     | [<img src="https://img.shields.io/maven-central/v/com.github.acflorea/akka-persistence-titan_2.11.svg?label=latest%20release%20for%202.11"/>](http://search.maven.org/#search%7cga%7c1%7cg%3a%22com.github.acflorea%22a%3a%22akka-persistence-titan_2.11%22)|
 | Scala      | 2.11.7                           |
-| Akka       | 2.3.12 or higher                 |
+| Akka       | 2.4.0 or higher                  |
 | Titan      | 1.0.0                            |
 
 ### Snapshot
@@ -19,7 +19,7 @@ A replicated [Akka Persistence](http://doc.akka.io/docs/akka/current/scala/persi
 | :--------: | -------------------------------- |
 | Plugin     | [<img src="https://img.shields.io/badge/latest%20snapshot%20for%202.11-1.0.1--SNAPSHOT-blue.svg"/>](https://oss.sonatype.org/content/repositories/snapshots/com/github/acflorea/akka-persistence-titan_2.11/1.0.1-SNAPSHOT/)
 | Scala      | 2.11.7                           |
-| Akka       | 2.4.1 or higher                  |
+| Akka       | 2.4.0 or higher                  |
 | Titan      | 1.0.0                            |
 
 ## Installation
