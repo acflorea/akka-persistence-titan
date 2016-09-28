@@ -16,14 +16,25 @@ class DetailedJournal(config: TitanJournalConfig) extends Actor with ActorLoggin
   override def receive: Receive = {
 
     case Details(payload, parentId) =>
-      val vertex = graph.vertices(parentId).next()
+      val parentIterator = graph.vertices(parentId)
 
-      // Properties
-      getCCParams(payload.payload) map { entry =>
-        vertex.property(s"$PAYLOAD_KEY.${entry._1}", entry._2)
+      if (parentIterator.hasNext) {
+        log.debug(s"Parent vertex ($parentId) retrieved. Storing details")
+        val parentVertex = graph.vertices(parentId).next()
+
+        val detailsVertex = graph.addVertex()
+
+        // Properties
+        getCCParams(payload.payload) map { entry =>
+          detailsVertex.property(s"$PAYLOAD_KEY.${entry._1}", entry._2)
+        }
+
+        parentVertex.addEdge(DETAILS_EDGE, detailsVertex)
+
+        graph.tx().commit()
+      } else {
+        log.warning(s"Unable to retrieve parent vertex for payload $payload and parentId $parentId")
       }
-
-      log.debug(s"Hello from the other side!!! $payload, $parentId")
 
   }
 
