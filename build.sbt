@@ -8,7 +8,6 @@ val akkaVersion = "2.4.1"
 val logbackVersion = "1.1.3"
 val scalatestVersion = "2.2.4"
 val titanVersion = "1.0.0"
-val tinkerpopVersion = "2.6.0"
 val configVersion = "1.3.0"
 val gsonVersion = "2.7"
 val liftVersion = "2.0"
@@ -45,9 +44,6 @@ libraryDependencies ++= {
     "com.thinkaurelius.titan" % "titan-core" % titanVersion,
     "com.thinkaurelius.titan" % "titan-cassandra" % titanVersion % "test",
     "com.thinkaurelius.titan" % "titan-es" % titanVersion % "test",
-    "com.tinkerpop.blueprints" % "blueprints-core" % tinkerpopVersion,
-    "com.tinkerpop" % "frames" % tinkerpopVersion,
-    "com.tinkerpop" % "pipes" % tinkerpopVersion,
     "com.typesafe.akka" %% "akka-persistence-tck" % akkaVersion % "test"
   )
 }
