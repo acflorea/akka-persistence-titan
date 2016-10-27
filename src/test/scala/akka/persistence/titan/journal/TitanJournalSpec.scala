@@ -6,6 +6,7 @@ import akka.persistence.titan.DataPurger
 import akka.persistence.titan.TitanCommons._
 import akka.testkit.TestProbe
 import com.typesafe.config.ConfigFactory
+import org.apache.tinkerpop.gremlin.structure.Direction
 
 import scala.collection.JavaConverters._
 
@@ -30,8 +31,8 @@ object TitanJournalConfiguration {
 
 
 /**
- * Created by aflorea on 25.07.2016.
- */
+  * Created by aflorea on 25.07.2016.
+  */
 class TitanJournalSpec extends JournalSpec(
   config = TitanJournalConfiguration.config) {
 
@@ -57,14 +58,16 @@ class TitanJournalSpec extends JournalSpec(
 
   "My journal" must {
     "replay all messages" in {
-      val vertices = graph.query().vertices().asScala
+      val vertices = graph.traversal().V().hasLabel("vertex").toList.asScala
 
       val payloadInfo = vertices map { vertex =>
         val payloadProps = vertex.properties[String]().asScala.filter { p =>
           p.label().startsWith(s"$PAYLOAD_KEY.")
         }
-        vertex.property[String](SEQUENCE_NR_KEY).value() ->
-          payloadProps.map(p => vertex.property[String](p.label()).value()).toList
+
+        val edges = vertex.edges(Direction.OUT, DETAILS_EDGE).asScala.toList
+
+        edges
       }
 
       logger.info(payloadInfo.toString())

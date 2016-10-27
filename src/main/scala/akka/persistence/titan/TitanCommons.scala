@@ -15,6 +15,7 @@ object TitanCommons {
   val DELETED_KEY = "deleted"
 
   val DETAILS_EDGE = "has_details"
+  val DETAILS_VERTEX_LABEL = "payload_details"
 
   val gson = new Gson()
 
