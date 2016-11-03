@@ -1,10 +1,9 @@
 package akka.persistence.titan.journal
 
-import akka.actor.Actor.Receive
 import akka.actor.{Actor, ActorLogging}
 import akka.persistence.PersistentRepr
 import akka.persistence.titan.TitanCommons._
-import org.apache.tinkerpop.gremlin.structure.{Graph, Vertex}
+import org.apache.tinkerpop.gremlin.structure.Graph
 
 /**
   * Actor in charge with storing Journal events details
@@ -27,7 +26,13 @@ class DetailedJournal(config: TitanJournalConfig) extends Actor with ActorLoggin
 
         // Properties
         getCCParams(payload.payload) foreach { entry =>
-          detailsVertex.property(s"$PAYLOAD_KEY.${entry._1}", entry._2)
+          entry._2 match {
+            // Flatten nested structures
+            case nestedMap: java.util.Map[String, Any] =>
+              ""
+            case _ =>
+              detailsVertex.property(s"$PAYLOAD_KEY.${entry._1}", entry._2)
+          }
         }
 
         parentVertex.addEdge(DETAILS_EDGE, detailsVertex)
@@ -38,6 +43,7 @@ class DetailedJournal(config: TitanJournalConfig) extends Actor with ActorLoggin
       }
 
   }
+
 
 }
 
