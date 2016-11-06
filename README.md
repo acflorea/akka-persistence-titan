@@ -157,6 +157,12 @@ titan-snapshot-store {
 
 * First release version to Maven Central Releases.
 
+### 1.1.0
+
+# Persistent data is now humar readable. Add details for persistent objects (the details are the JSON representation of persisted journal/snapshot entries)
+Each persisted vertex is now connected to its human readable representation through an edge labeled "has_details", the details vertex being labeled "payload_details".
+The storage of details is performed asynchronous in a separate actor.
+
 ## Author / Maintainer
 
 * [Adrian FLOREA (@acflorea)](https://github.com/acflorea)
