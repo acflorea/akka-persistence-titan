@@ -3,6 +3,7 @@ package akka.persistence.titan.journal
 import akka.actor.{ActorLogging, Props}
 import akka.persistence.journal.AsyncWriteJournal
 import akka.persistence.titan.TitanCommons._
+import akka.persistence.titan.common.{DetailsStore, Details}
 import akka.persistence.{AtomicWrite, PersistentRepr}
 import akka.serialization.{Serialization, SerializationExtension}
 import com.thinkaurelius.titan.core.attribute.Cmp
@@ -28,7 +29,7 @@ class TitanJournal(conf: Config) extends AsyncWriteJournal with ActorLogging {
 
   import config._
 
-  lazy val detailsActor = context.actorOf(Props(classOf[DetailedJournal], config), "journal-details-writer")
+  lazy val detailsActor = context.actorOf(Props(classOf[DetailsStore], config), "journal-details-writer")
 
   override def asyncWriteMessages(
                                    messages: Seq[AtomicWrite]
@@ -65,7 +66,7 @@ class TitanJournal(conf: Config) extends AsyncWriteJournal with ActorLogging {
               val vertex = vp._1
               val payload = vp._2
               // Persist details - do it in a fire & forget manner
-              detailsActor ! Details(payload, vertex.id())
+              detailsActor ! Details(payload.payload, vertex.id())
               vertex
           }
         }

@@ -1,16 +1,17 @@
-package akka.persistence.titan.journal
+package akka.persistence.titan.common
 
 import akka.actor.{Actor, ActorLogging}
-import akka.persistence.PersistentRepr
 import akka.persistence.titan.TitanCommons._
+import akka.persistence.titan.TitanPluginConfig
 import org.apache.tinkerpop.gremlin.structure.Graph
+
 import scala.collection.JavaConverters._
 
 /**
-  * Actor in charge with storing Journal events details
+  * Actor in charge with storing Journal/Snapshot events details
   * Created by acflorea on 28/09/2016.
   */
-class DetailedJournal(config: TitanJournalConfig) extends Actor with ActorLogging {
+class DetailsStore(config: TitanPluginConfig) extends Actor with ActorLogging {
 
   import config._
 
@@ -26,7 +27,7 @@ class DetailedJournal(config: TitanJournalConfig) extends Actor with ActorLoggin
         val detailsVertex = graph.asInstanceOf[Graph].addVertex(DETAILS_VERTEX_LABEL: String)
 
         // Properties
-        _flatten(PAYLOAD_KEY, getCCParams(payload.payload)) foreach { entry =>
+        _flatten(PAYLOAD_KEY, getCCParams(payload)) foreach { entry =>
           detailsVertex.property(s"${entry._1}", entry._2)
         }
 
@@ -64,5 +65,5 @@ class DetailedJournal(config: TitanJournalConfig) extends Actor with ActorLoggin
 
 }
 
-case class Details(payload: PersistentRepr, parentId: AnyRef)
+case class Details(payload: Any, parentId: AnyRef)
 

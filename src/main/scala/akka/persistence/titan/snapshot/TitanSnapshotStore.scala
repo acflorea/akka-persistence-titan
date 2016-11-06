@@ -1,9 +1,10 @@
 package akka.persistence.titan.snapshot
 
-import akka.actor.ActorLogging
+import akka.actor.{ActorLogging, Props}
 import akka.persistence.serialization.Snapshot
 import akka.persistence.snapshot.SnapshotStore
 import akka.persistence.titan.TitanCommons._
+import akka.persistence.titan.common.{DetailsStore, Details}
 import akka.persistence.{SelectedSnapshot, SnapshotMetadata, SnapshotSelectionCriteria}
 import akka.serialization.{Serialization, SerializationExtension}
 import com.thinkaurelius.titan.core.attribute.Cmp
@@ -15,8 +16,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 /**
- * Created by aflorea on 18.07.2016.
- */
+  * Created by aflorea on 18.07.2016.
+  */
 class TitanSnapshotStore(cfg: Config) extends SnapshotStore with ActorLogging {
 
   private lazy val serialization: Serialization = SerializationExtension(context.system)
@@ -24,6 +25,8 @@ class TitanSnapshotStore(cfg: Config) extends SnapshotStore with ActorLogging {
   val config = new TitanSnapshotStoreConfig(cfg)
 
   import config._
+
+  lazy val detailsActor = context.actorOf(Props(classOf[DetailsStore], config), "snapshot-details-writer")
 
   override def loadAsync(
                           persistenceId: String,
@@ -80,6 +83,9 @@ class TitanSnapshotStore(cfg: Config) extends SnapshotStore with ActorLogging {
       graph.tx().commit()
       log.debug(s"$snapshot persisted OK!")
 
+      // Persist details - do it in a fire & forget manner
+      detailsActor ! Details(snapshot, vertex.id())
+
     }
   }
 
@@ -94,9 +100,7 @@ class TitanSnapshotStore(cfg: Config) extends SnapshotStore with ActorLogging {
       .vertices().asScala.headOption
 
     Future {
-      snapshotVertex.map { vertex =>
-        vertex.remove()
-      }
+      snapshotVertex.foreach(_.remove())
     }
 
   }
@@ -114,7 +118,7 @@ class TitanSnapshotStore(cfg: Config) extends SnapshotStore with ActorLogging {
       .vertices().asScala
 
     Future {
-      snapshotVertices.map(_.remove())
+      snapshotVertices.foreach(_.remove())
     }
   }
 
