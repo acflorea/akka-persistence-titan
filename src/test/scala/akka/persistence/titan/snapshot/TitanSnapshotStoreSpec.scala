@@ -11,6 +11,9 @@ object TitanSnapshotConfiguration {
   lazy val config = ConfigFactory.parseString(
     """
       |akka.persistence.snapshot-store.plugin = "titan-snapshot-store"
+      |titan-snapshot-store.class = "akka.persistence.titan.snapshot.TitanSnapshotStore"
+      |titan-snapshot-store.circuit-breaker.call-timeout = "30s"
+      |titan-snapshot-store.circuit-breaker.reset-timeout = "30s"
       |graph.storage.backend = "embeddedcassandra"
       |graph.storage.conf-file = "cassandra/cassandra.yaml"
       |graph.storage.cassandra.keyspace = "akkasnapshot"
