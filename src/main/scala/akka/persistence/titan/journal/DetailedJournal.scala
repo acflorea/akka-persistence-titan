@@ -40,6 +40,13 @@ class DetailedJournal(config: TitanJournalConfig) extends Actor with ActorLoggin
   }
 
 
+  /**
+    * Coverts a map of maps to its flatten representation
+    *
+    * @param key - key to be concatenated with map entries
+    * @param map - map of properties candidates
+    * @return - a flatten representation of the map
+    */
   def _flatten(key: String, map: java.util.Map[String, Any]): Map[String, Any] = {
     val flatRepr = map.asScala map { entry =>
       val inner = entry._2 match {
