@@ -1,14 +1,13 @@
 package akka.persistence.titan.journal
 
 import akka.actor.{Actor, ActorRef}
-import akka.persistence.{AtomicWrite, CapabilityFlag, PersistentImpl, PersistentRepr}
 import akka.persistence.JournalProtocol.{ReplayedMessage, WriteMessageSuccess, WriteMessages, WriteMessagesSuccessful}
 import akka.persistence.journal.JournalSpec
 import akka.persistence.titan.DataPurger
 import akka.persistence.titan.TitanCommons._
+import akka.persistence._
 import akka.testkit.TestProbe
 import com.typesafe.config.ConfigFactory
-import org.apache.tinkerpop.gremlin.structure.Direction
 
 import scala.collection.JavaConverters._
 import scala.collection.immutable.Seq
@@ -18,7 +17,6 @@ object TitanJournalConfiguration {
   lazy val config = ConfigFactory.parseString(
     """
       |akka.persistence.journal.plugin = "titan-journal"
-      |akka.persistence.snapshot-store.plugin = "titan-snapshot-store"
       |titan-journal.class = "akka.persistence.titan.journal.TitanJournal"
       |titan-journal.circuit-breaker.call-timeout = "30s"
       |titan-journal.circuit-breaker.reset-timeout = "30s"
@@ -46,11 +44,11 @@ class TitanJournalSpec extends JournalSpec(
   override def supportsRejectingNonSerializableObjects: CapabilityFlag =
     false // or CapabilityFlag.off
 
-  private var myProbe: TestProbe = _
+  private var customProbe: TestProbe = _
 
   override protected def beforeEach(): Unit = {
     super.beforeEach()
-    myProbe = TestProbe()
+    customProbe = TestProbe()
   }
 
   override def afterAll() {
@@ -96,18 +94,19 @@ class TitanJournalSpec extends JournalSpec(
   }
 
   "My journal" must {
-    "replay all messages" in {
+    "store payload details" in {
       val vertices = graph.traversal().V().hasLabel("vertex").toList.asScala
 
-      val payloadInfo = vertices map { vertex =>
+      val payloadInfo = vertices foreach { vertex =>
 
         val detailsVertex = graph.traversal().V(vertex.id()).out(DETAILS_EDGE).limit(1).toList.asScala.headOption
 
         // Check that the details are present
         detailsVertex shouldBe defined
+
+        logger.info(detailsVertex.get.properties().asScala.toList.mkString(", "))
       }
 
-      logger.info(payloadInfo.toString())
     }
   }
 }
