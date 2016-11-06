@@ -30,14 +30,16 @@ object TitanCommons {
     * @param o - the object to serialize
     * @return - a Map
     */
-  def getCCParams(o: Any): scala.collection.mutable.Map[String, Any] = {
+  def getCCParams(o: Any): util.Map[String, Any] = {
     val jsoned = gson.toJsonTree(o)
     jsoned match {
       case primitive: JsonPrimitive =>
-        scala.collection.mutable.Map("_raw" -> o)
+        val map = new util.HashMap[String, Any]()
+        map.put("_raw", o)
+        map
       case _ =>
         val stringStringMap = new TypeToken[util.HashMap[String, Any]]() {}.getType
-        gson.fromJson(jsoned, stringStringMap).asInstanceOf[util.HashMap[String, Any]].asScala
+        gson.fromJson(jsoned, stringStringMap).asInstanceOf[util.HashMap[String, Any]]
     }
   }
 

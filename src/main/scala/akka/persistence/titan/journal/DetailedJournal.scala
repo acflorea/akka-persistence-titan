@@ -26,16 +26,8 @@ class DetailedJournal(config: TitanJournalConfig) extends Actor with ActorLoggin
         val detailsVertex = graph.asInstanceOf[Graph].addVertex(DETAILS_VERTEX_LABEL: String)
 
         // Properties
-        getCCParams(payload.payload) foreach { entry =>
-          entry._2 match {
-            // Flatten nested structures
-            case nestedMap: java.util.Map[String, Any] =>
-              _flatten(entry._1, nestedMap) foreach { nested_entry =>
-                detailsVertex.property(s"$PAYLOAD_KEY.${nested_entry._1}", nested_entry._2)
-              }
-            case _ =>
-              detailsVertex.property(s"$PAYLOAD_KEY.${entry._1}", entry._2)
-          }
+        _flatten(PAYLOAD_KEY, getCCParams(payload.payload)) foreach { entry =>
+          detailsVertex.property(s"${entry._1}", entry._2)
         }
 
         parentVertex.addEdge(DETAILS_EDGE, detailsVertex)
@@ -48,17 +40,18 @@ class DetailedJournal(config: TitanJournalConfig) extends Actor with ActorLoggin
   }
 
 
-  def _flatten(key: String, map: java.util.Map[String, Any]): scala.collection.mutable.Map[String, Any] = {
+  def _flatten(key: String, map: java.util.Map[String, Any]): Map[String, Any] = {
     val flatRepr = map.asScala map { entry =>
-      entry._2 match {
+      val inner = entry._2 match {
         // Flatten nested structures
         case nestedMap: java.util.Map[String, Any] =>
-          _flatten(entry._1, nestedMap)
+          _flatten(s"$key.${entry._1}", nestedMap)
         case _ =>
-          s"$key.${entry._1}" -> entry._2
+          Map(s"$key.${entry._1}" -> entry._2)
       }
+      inner
     }
-    flatRepr.flatten
+    flatRepr.flatten.toMap
   }
 
 
