@@ -6,6 +6,7 @@ import akka.persistence.journal.JournalSpec
 import akka.persistence.titan.DataPurger
 import akka.persistence.titan.TitanCommons._
 import akka.persistence._
+import akka.persistence.titan.common.ComplexMessage
 import akka.testkit.TestProbe
 import com.typesafe.config.ConfigFactory
 
@@ -111,23 +112,5 @@ class TitanJournalSpec extends JournalSpec(
   }
 }
 
-/**
-  * A dumb message body
-  *
-  * @param aStringFiled
-  * @param aDoubleFiled - can only by 42.42
-  */
-case class ComplexBody(aStringFiled: String = "some random value", aDoubleFiled: Double = 42.42)
 
-/**
-  * A dumb message - the idea is to have something more complex than a single string
-  *
-  * @param payload
-  * @param additionalInfo
-  * @param aNumber - 42 obviously
-  * @param aNestedCaseClass
-  */
-case class ComplexMessage(payload: String,
-                          additionalInfo: String = "some additional info",
-                          aNumber: Integer = 42,
-                          aNestedCaseClass: ComplexBody = ComplexBody())
+
